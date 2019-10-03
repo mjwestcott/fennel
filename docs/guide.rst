@@ -220,7 +220,7 @@ Limitations
 2. Return values (if results storage is enabled) must be JSON-serialisable.
 3. Processing order is not guaranteed (if you want to ensure all events for a given key
    are processed in-order look for stream processors based on Kafka).
-4. Tasks are will processed at least once (we acknowledge the underlying messages when a
+4. Tasks will be processed at least once (we acknowledge the underlying messages when a
    task returns without an exception, so any failures before then will happen again when
    retried).
 
