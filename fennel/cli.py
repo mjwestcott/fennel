@@ -62,6 +62,9 @@ def cli() -> None:
 """,
 )
 def worker(application: str, processes: int, concurrency: int) -> None:
+    """
+    Run the worker.
+    """
     app = get_object(application)
     if processes:
         app.settings.processes = processes
