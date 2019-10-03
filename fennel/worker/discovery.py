@@ -25,7 +25,7 @@ def autodiscover(app, basedir=None):
     pattern = app.settings.autodiscover
 
     if pattern:
-        for filename in Path(basedir or Path.cwd()).glob(pattern):
+        for filename in Path(basedir or Path('.')).glob(pattern):
             module = ".".join(filename.parts)[:-3]
             logger.debug("discovered", module=module)
             importlib.import_module(module)
