@@ -18,6 +18,11 @@ Fennel is a task queue for Python 3.7+ based on Redis Streams with a Celery-like
 * Exceptionally small and understandable codebase (core is ~1500 lines)
 * Automatic task discovery (defaults to using ``**/tasks.py``)
 
+.. Note::
+
+    This is an *alpha* release. The project is under development, breaking changes are
+    likely.
+
 Basic Usage
 -----------
 
