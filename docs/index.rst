@@ -43,7 +43,7 @@ Run `Redis <https://redis.io>`_ and then write your code in ``tasks.py``:
 
 Meanwhile, run the worker::
 
-    $ fennel worker --app tasks:app
+    $ python -m fennel worker --app tasks:app
 
 Installation
 ------------

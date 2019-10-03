@@ -34,7 +34,7 @@ foo.delay(7)
 
 Meanwhile, run the worker:
 ```bash
-$ fennel worker --app tasks:app
+$ python -m fennel worker --app tasks:app
 ```
 
 ### Installation
