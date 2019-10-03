@@ -4,6 +4,8 @@ version = "0.1.0"
 description = "A task queue for Python based on Redis Streams."
 authors = ["Matt Westcott <m.westcott@gmail.com>"]
 license = "MIT"
+homepage = "https://fennel.readthedocs.io"
+repository = "https://github.com/mjwestcott/fennel"
 
 [tool.poetry.dependencies]
 python = "^3.7"
