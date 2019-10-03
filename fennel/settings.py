@@ -14,7 +14,7 @@ class Settings(BaseSettings):
 
     | ``FENNEL_REDIS_URL=redis://127.0.0.1:6379``
     | ``FENNEL_DEFAULT_RETRIES=3``
-    | ``FENNEL_RESULT_ENABLED=true``
+    | ``FENNEL_RESULTS_ENABLED=true``
 
     Or via App kwargs:
 
