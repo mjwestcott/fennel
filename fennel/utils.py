@@ -1,0 +1,78 @@
+import base64
+import importlib
+import random
+import time
+import uuid
+from contextlib import contextmanager
+from typing import Any, Generator
+
+import aioredis
+import redis
+
+EMPTY = object()  # A unique value used to distinguish emptiness from None
+
+
+def backoff(retries: int, jitter: bool = True) -> int:
+    """
+    Compute duration (seconds) to wait before retrying using exponential backoff with
+    jitter based on the number of retries a message has already experienced.
+
+    The minimum returned value is 1s
+    The maximum returned value is 604800s (7 days)
+
+    With max_retries=9, you will have roughly 30 days to fix and redeploy the the task
+    code.
+
+    Parameters
+    ----------
+    retries : int
+        How many retries have already been attemped.
+    jitter : bool
+        Whether to add random noise to the return value (recommended).
+
+    Notes
+    -----
+    https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/
+    """
+    x = 6 ** (retries + 1)
+    if jitter:
+        x = random.randrange(x // 3, x * 2)
+    return min(604_800, x)
+
+
+def base64uuid() -> str:
+    return base64.urlsafe_b64encode(uuid.uuid4().bytes).rstrip(b"=").decode("ascii")
+
+
+def now() -> float:
+    return time.time()
+
+
+@contextmanager
+def duration(logger, event: str, **extra: Any) -> Generator:
+    logger.info(f"started-{event}", **extra)
+    start = time.perf_counter()
+    yield
+    duration = time.perf_counter() - start
+    logger.info(f"ended-{event}", duration=duration, **extra)
+
+
+def get_object(name: str) -> Any:
+    module_name, instance_name = name.split(":", 1)
+    module = importlib.import_module(module_name)
+    return getattr(module, instance_name)
+
+
+def get_redis(app, poolsize: int):
+    return redis.Redis.from_url(
+        app.settings.redis_url, decode_responses=True, max_connections=poolsize
+    )
+
+
+async def get_aioredis(app, poolsize: int):
+    return await aioredis.create_redis_pool(
+        app.settings.redis_url,
+        encoding="utf-8",
+        minsize=poolsize,
+        maxsize=poolsize + (poolsize // 4),
+    )
