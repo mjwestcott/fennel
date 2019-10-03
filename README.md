@@ -2,6 +2,8 @@
 
 A task queue for Python 3.7+ based on Redis Streams with a Celery-like API.
 
+https://fennel.readthedocs.io/
+
 | Note: This is an *alpha* release. The project is under development, breaking changes are likely. |
 | --- |
 
