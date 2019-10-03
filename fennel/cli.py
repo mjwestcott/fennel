@@ -3,6 +3,7 @@ from typing import Optional
 import click
 
 from fennel import client
+from fennel.client.state import get_job, get_state
 from fennel.exceptions import JobNotFound
 from fennel.models import render
 from fennel.utils import get_object
@@ -101,7 +102,7 @@ def task(application: str, uuid: Optional[str]) -> None:
     """
     app = get_object(application)
     try:
-        click.echo(render(client.get_job(app, uuid)))
+        click.echo(render(get_job(app, uuid)))
     except JobNotFound:
         click.echo(render({"error": f"Task with uuid={uuid} not found"}))
 
@@ -112,4 +113,4 @@ def info(application: str) -> None:
     """
     Print a JSON-encoded summary of application state.
     """
-    click.echo(render(client.get_state(get_object(application))))
+    click.echo(render(get_state(get_object(application))))

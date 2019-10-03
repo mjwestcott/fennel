@@ -34,21 +34,21 @@ def test_dlq(mocker, app):
 
 
 def test_task(mocker, app):
-    mocked_client = mocker.patch("fennel.cli.client")
+    mocked_get_job = mocker.patch("fennel.cli.get_job")
     mocked_get_object = mocker.patch("fennel.cli.get_object")
     mocked_get_object.return_value = app
 
     CliRunner().invoke(task, ["--app", "foo:bar", "--uuid", "baz"])
-    assert mocked_client.get_job.call_args == mocker.call(app, "baz")
+    assert mocked_get_job.call_args == mocker.call(app, "baz")
 
 
 def test_info(mocker, app):
-    mocked_client = mocker.patch("fennel.cli.client")
+    mocked_get_state = mocker.patch("fennel.cli.get_state")
     mocked_get_object = mocker.patch("fennel.cli.get_object")
     mocked_get_object.return_value = app
 
     CliRunner().invoke(info, ["--app", "foo:bar"])
-    assert mocked_client.get_state.call_args[0][0] == app
+    assert mocked_get_state.call_args[0][0] == app
 
 
 def test_get_object():
