@@ -83,7 +83,7 @@ the settings ``processes=2`` and ``concurrency=8``::
 
 The worker process itself simply spawns 2 executor processes and monitors their health.
 The executors themselves run 8 consumer coroutines which are responsible for waiting to
-recieve jobs from the queue and then executing them. If the job is a coroutine function,
+receive jobs from the queue and then executing them. If the job is a coroutine function,
 it is awaited in the running asyncio event loop, otherwise it is run in a
 `ThreadPoolExecutor` so as not to block the loop.
 
