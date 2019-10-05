@@ -87,7 +87,7 @@ receive jobs from the queue and then executing them. If the job is a coroutine f
 it is awaited in the running asyncio event loop, otherwise it is run in a
 `ThreadPoolExecutor` so as not to block the loop.
 
-The other coroutines maintain the health of the system by publshing heartbeats, polling
+The other coroutines maintain the health of the system by publishing heartbeats, polling
 for scheduled jobs, and responding to the death of other workers or executors.
 
 CPU-bound tasks benefit from multiple processes. We default to running
