@@ -70,8 +70,8 @@ class Settings(BaseSettings):
         Default ``6``
     schedule_interval : float
         How many seconds to sleep between polling for scheduled tasks. Default ``4``
-    maintenence_interval : float
-        How many seconds to sleep between running the maintenence script. Default ``8``
+    maintenance_interval : float
+        How many seconds to sleep between running the maintenance script. Default ``8``
     task_timeout : int
         How long to wait for results to be computed when calling .get(), seconds.
         Default ``10``
@@ -108,7 +108,7 @@ class Settings(BaseSettings):
     heartbeat_timeout: float = 60
     heartbeat_interval: float = 6
     schedule_interval: float = 4
-    maintenence_interval: float = 8
+    maintenance_interval: float = 8
     task_timeout: int = 10
     results_enabled: bool = True
     results_ttl: int = 60 * 60

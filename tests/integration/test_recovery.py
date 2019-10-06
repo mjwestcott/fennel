@@ -21,7 +21,7 @@ def app():
         concurrency=4,
         prefetch_count=1,
         retry_backoff=lambda retries: 0.01,
-        maintenence_interval=0.1,
+        maintenance_interval=0.1,
         schedule_interval=0.1,
         heartbeat_interval=0.1,
         heartbeat_timeout=1,
@@ -92,7 +92,7 @@ def test_worker_failure(app):
     dead_executor_id = state.heartbeats[0].executor_id
 
     # Complete the job processing with a new worker (must wait long enough for
-    # maintenence to happen and the dead worker's pending jobs to be reassigned).
+    # maintenance to happen and the dead worker's pending jobs to be reassigned).
     with worker(app):
         state = wait_for_results(app, length=100, sleep=0.2, maxwait=4)
 

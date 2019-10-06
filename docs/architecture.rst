@@ -73,7 +73,7 @@ the settings ``processes=2`` and ``concurrency=8``::
     |   |                              |     |                              |   |
     |   |    1x heartbeat coroutine    |     |    1x heartbeat coroutine    |   |
     |   |                              |     |                              |   |
-    |   |    1x maintenece coroutine   |     |    1x maintenece coroutine   |   |
+    |   |    1x maintenance coroutine  |     |    1x maintenance coroutine  |   |
     |   |                              |     |                              |   |
     |   |    1x scheduler coroutine    |     |    1x scheduler coroutine    |   |
     |   |                              |     |                              |   |

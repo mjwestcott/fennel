@@ -202,9 +202,9 @@ class Broker:
         """
         return await self.client.hset(self.keys.heartbeats, executor_id, now())
 
-    async def maintenence(self, threshold: int) -> List:
+    async def maintenance(self, threshold: int) -> List:
         """
-        Execute the maintenence script:
+        Execute the maintenance script:
             1. Find dead consumers (their worker heartbeats are missing for greater than
             settings.heartbeat_timeout).
             2. Delete their pending messages and put them back in the stream for other
@@ -212,7 +212,7 @@ class Broker:
             3. Delete the dead consumers (and the worker's last heartbeat).
         """
         return await self.client.evalsha(
-            digest=self.scripts["maintenence"],
+            digest=self.scripts["maintenance"],
             keys=[self.keys.queue, self.keys.heartbeats],
             args=[self.keys.group, now(), threshold],
         )

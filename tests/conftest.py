@@ -43,7 +43,7 @@ def executor(app):
 @pytest.fixture
 async def broker(app):
     b = await Broker.for_app(app)
-    assert set(b.scripts) == {"maintenence", "schedule"}
+    assert set(b.scripts) == {"maintenance", "schedule"}
     return b
 
 

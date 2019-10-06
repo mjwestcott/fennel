@@ -13,7 +13,7 @@ def test_entrypoint():
         read_timeout=100,
         prefetch_count=1,
         results_enabled=True,
-        maintenence_interval=0.1,
+        maintenance_interval=0.1,
         schedule_interval=0.1,
         heartbeat_interval=0.1,
     )

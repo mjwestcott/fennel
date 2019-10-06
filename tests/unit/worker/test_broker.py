@@ -78,7 +78,7 @@ async def test_heartbeat(app, broker, executor_id):
 
 
 @pytest.mark.asyncio
-async def test_maintenence(app, broker, messages, executor_id, consumer_id):
+async def test_maintenance(app, broker, messages, executor_id, consumer_id):
     with freeze_time("2020-01-01 00:00:00"):
         await broker.read(consumer_id, count=5)
         await broker.heartbeat(executor_id)
@@ -94,7 +94,7 @@ async def test_maintenence(app, broker, messages, executor_id, consumer_id):
         assert count_results(app) == 0
 
     with freeze_time("2020-01-01 00:00:30"):  # 30 seconds later, not passed threshold
-        await broker.maintenence(threshold=59)
+        await broker.maintenance(threshold=59)
 
         state = get_state(app)
         new_xids = {m.id for m in state.queue.messages}
@@ -108,7 +108,7 @@ async def test_maintenence(app, broker, messages, executor_id, consumer_id):
         assert count_results(app) == 0
 
     with freeze_time("2020-01-01 00:01:00"):  # 1 minute later, passed threshold
-        await broker.maintenence(threshold=59)
+        await broker.maintenance(threshold=59)
 
         state = get_state(app)
         new_xids = {m.id for m in state.queue.messages}

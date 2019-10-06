@@ -11,7 +11,7 @@ def test_dead_e2e():
         retry_backoff=lambda retries: 0.01,
         schedule_interval=0.1,
         heartbeat_interval=0.1,
-        maintenence_interval=0.1,
+        maintenance_interval=0.1,
         processes=1,
         concurrency=4,
         prefetch_count=1,

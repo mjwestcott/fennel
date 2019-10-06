@@ -33,7 +33,7 @@ class Executor:
         :attr:`fennel.settings.Settings.heartbeat_interval`). If they are missing for
         more than :attr:`fennel.settings.Settings.heartbeat_timeout` seconds, the
         executor will be assumed dead and all of its pending messages will be reinserted
-        to the stream by another worker's maintenence function.
+        to the stream by another worker's maintenance function.
 
         Parameters
         ----------
@@ -94,7 +94,7 @@ class Executor:
         self.broker = await Broker.for_app(self.app)
 
         consumers = [self._loop(f"{self.executor_id}:{i}", exit) for i in range(n)]
-        maintainers = [self._heartbeat(), self._scheduler(), self._maintenence()]
+        maintainers = [self._heartbeat(), self._scheduler(), self._maintenance()]
 
         logger.warning("executor-started", executor=self.executor_id)
         await asyncio.gather(*consumers + maintainers)
@@ -199,9 +199,9 @@ class Executor:
             logger.info("poll-schedule", executor=self.executor_id, results=results)
             await asyncio.sleep(self.settings.schedule_interval)
 
-    async def _maintenence(self) -> None:
+    async def _maintenance(self) -> None:
         """
-        The maintenence script performs the following:
+        The maintenance script performs the following:
             1. Find dead consumers (their executor heartbeats are missing for greater
             than settings.heartbeat_timeout).
             2. Delete their pending messages and put them back in the stream for other
@@ -209,6 +209,6 @@ class Executor:
             3. Delete the dead consumers (and the executor's last heartbeat).
         """
         while not self.must_stop:
-            results = await self.broker.maintenence(self.settings.heartbeat_timeout)
-            logger.info("maintenence", executor=self.executor_id, results=results)
-            await asyncio.sleep(self.settings.maintenence_interval)
+            results = await self.broker.maintenance(self.settings.heartbeat_timeout)
+            logger.info("maintenance", executor=self.executor_id, results=results)
+            await asyncio.sleep(self.settings.maintenance_interval)

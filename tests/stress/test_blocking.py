@@ -14,7 +14,7 @@ def app(request):
         name=f"{request.param}",
         processes=1,
         concurrency=8,
-        maintenence_interval=2,
+        maintenance_interval=2,
         schedule_interval=2,
         heartbeat_interval=0.1,  # <-- Ensure these arrive
         heartbeat_timeout=2,
