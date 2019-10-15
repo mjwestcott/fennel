@@ -1,6 +1,6 @@
 Motivation
 ==========
 
-Python needs an asyncio-compatible task queue library. That's all!
+Python needs an async/await compatible task queue library.
 
-(Oh, and Celery is perhaps past its prime.)
+(And Celery is perhaps past its prime.)
