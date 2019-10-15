@@ -12,9 +12,15 @@ https://fennel.readthedocs.io/
 * Supports both sync (e.g. Django, Flask) and async (e.g. Starlette, FastAPI) code.
 * Sane defaults: at least once processing semantics, tasks acknowledged on completion.
 * Automatic retries with exponential backoff for fire-and-forget jobs.
-* Clear task statuses available (SENT, EXECUTING, etc.)
-* Exceptionally small and understandable codebase (core is ~1500 lines)
-* Automatic task discovery (defaults to using ``**/tasks.py``)
+* Clear task statuses available (e.g. sent, executing, success).
+* Automatic task discovery (defaults to using ``**/tasks.py``).
+* Exceptionally small and understandable codebase.
+
+### Installation
+
+```bash
+pip install fennel
+```
 
 ### Basic Usage
 
@@ -37,8 +43,20 @@ Meanwhile, run the worker:
 $ python -m fennel worker --app tasks:app
 ```
 
-### Installation
+### Asynchronous API
 
-```bash
-pip install fennel
+Fennel also supports an async API. If your code is running in an event loop
+(e.g. via [Starlette](https://www.starlette.io/) or
+[FastAPI](https://fastapi.tiangolo.com/)), you will want to use the async
+interface instead:
+```python
+from fennel import App
+
+app = App(name='myapp', redis_url='redis://127.0.0.1', interface='async')
+
+@app.task
+async def bar(x)
+    return x
+
+await bar.delay(5)
 ```

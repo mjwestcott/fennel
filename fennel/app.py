@@ -53,7 +53,7 @@ class App:
         >>> x.get()  # Wait for the result.
         7
 
-        If your code is running in an `asyncio`-compatible event loop (e.g. Starlette,
+        If your code is running in an asynchronous event loop (e.g. via Starlette,
         FastAPI, Quart), you will want to use the async interface instead:
 
         >>> import asyncio
