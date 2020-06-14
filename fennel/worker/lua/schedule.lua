@@ -1,5 +1,5 @@
 -- Tasks which have failed are scheduled for retry according to exponential backoff. We
--- store them in a Redis sorted set where the score is the desried execution time. This
+-- store them in a Redis sorted set where the score is the desired execution time. This
 -- can be polled to find tasks whose time has passed, which are added back to the queue.
 
 local schedule = KEYS[1]

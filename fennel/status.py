@@ -22,7 +22,7 @@ EXECUTING = "EXECUTING"
 #: enabled).
 SUCCESS = "SUCCESS"
 
-#: Exection was not successful (an exception was raised) and a retry is scheduled
+#: Execution was not successful (an exception was raised) and a retry is scheduled
 #: to occur in the future.
 RETRY = "RETRY"
 

@@ -1,5 +1,6 @@
 import base64
 import importlib
+import multiprocessing as mp
 import random
 import time
 import uuid
@@ -76,3 +77,8 @@ async def get_aioredis(app, poolsize: int):
         minsize=poolsize,
         maxsize=poolsize + (poolsize // 4),
     )
+
+
+def get_mp_context():
+    # The default changed to 'spawn' in 3.8 on macOS due to https://bugs.python.org/issue33725
+    return mp.get_context("fork")

@@ -1,11 +1,12 @@
 import logging
+import multiprocessing as mp
 import signal
 import time
 from logging.handlers import QueueListener
-from multiprocessing import Process, Queue
 
 import structlog
 
+from fennel.utils import get_mp_context
 from fennel.worker.discovery import autodiscover
 from fennel.worker.executor import EXIT_SIGNAL, Executor
 
@@ -54,11 +55,12 @@ def start(app, exit=EXIT_SIGNAL):
     signal.signal(signal.SIGINT, stop)
     signal.signal(signal.SIGTERM, stop)
 
-    queue: Queue = Queue()  # To avoid interleaving executor process logs.
+    ctx = get_mp_context()
+    queue: mp.Queue = ctx.Queue()  # To avoid interleaving executor process logs.
     QueueListener(queue, logging.StreamHandler()).start()
 
     processes = [
-        Process(target=Executor(app).start, args=(exit, queue), daemon=True)
+        ctx.Process(target=Executor(app).start, args=(exit, queue), daemon=True)
         for _ in range(app.settings.processes)
     ]
 

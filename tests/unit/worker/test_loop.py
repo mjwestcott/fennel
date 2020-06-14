@@ -35,9 +35,7 @@ async def test_loop_iteration(mocker, executor, consumer_id, job, failing_job):
 
     executor.broker.read.side_effect = mock_read
     executor.broker.executing.side_effect = mock_executing
-    mocker.spy(executor, "_execute")
 
     assert await executor._loop(consumer_id, exit=EXIT_COMPLETE) == None
-    assert executor._execute.call_count == 8
     assert executor.broker.ack_and_store.call_count == 4
     assert executor.broker.ack_and_schedule.call_count == 4

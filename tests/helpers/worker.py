@@ -1,8 +1,8 @@
 import time
 from contextlib import contextmanager
-from multiprocessing import Process
 
 from fennel.client.state import count_results, get_state
+from fennel.utils import get_mp_context
 from fennel.worker import EXIT_SIGNAL, Executor, start
 
 
@@ -10,7 +10,8 @@ from fennel.worker import EXIT_SIGNAL, Executor, start
 def worker(app):
     # For end-to-end integration tests, will spawn N more
     # executor processes and will shutdown gracefully.
-    p = Process(target=start, args=(app,))
+    ctx = get_mp_context()
+    p = ctx.Process(target=start, args=(app,))
     try:
         p.start()
         yield p
@@ -23,7 +24,8 @@ def worker(app):
 def executor(app, graceful_shutdown=False, exit=EXIT_SIGNAL):
     # For unit tests which need to run an executor, spawn it
     # directly, kill it quickly with no cleanup.
-    p = Process(target=Executor(app).start, daemon=True)
+    ctx = get_mp_context()
+    p = ctx.Process(target=Executor(app).start, daemon=True)
     try:
         p.start()
         yield p
