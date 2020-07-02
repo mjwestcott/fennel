@@ -32,7 +32,6 @@ pytest-mypy = "^0.4.1"
 pytest-asyncio = "^0.10.0"
 pytest-benchmark = "^3.2"
 pytest-clarity = {version = "^0.1.0-alpha.1", allow-prereleases = true}
-numpy = "^1.17"
 tox = "^3.14"
 sphinx = "^2.1"
 sphinx_rtd_theme = "^0.4.3"
