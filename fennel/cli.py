@@ -56,10 +56,10 @@ def cli() -> None:
     default=None,
     help="""
     How many concurrent consumers to run (we make at least this many Redis
-    connections) in each executor process. The default, 32, can handle 640 req/s in
+    connections) in each executor process. The default, 8, can handle 160 req/s in
     a single worker process if each task is IO-bound and lasts on average 50ms. If
     you have long running CPU-bound tasks, you will want to run multiple executor
-    processes. Default ``32``
+    processes. Default ``8``
 """,
 )
 def worker(application: str, processes: int, concurrency: int) -> None:
@@ -81,6 +81,7 @@ def dlq(application: str, action: str) -> None:
     """
     Interact with the dead-letter queue. Choices for the `action` argument:
 
+    \b
     * read - Print all tasks from the dead-letter queue to stdout.
     * replay - Move all tasks from the dead-letter queue back to the main task queue for reprocessing.
     * purge - Remove all tasks from the dead-letter queue forever.

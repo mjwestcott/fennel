@@ -42,18 +42,18 @@ class Settings(BaseSettings):
         ``multiprocessing.cpu_count()``
     concurrency : int
         How many concurrent consumers to run (we make at least this many Redis
-        connections) in each executor process. The default, 32, can handle 640 req/s in
-        a single worker process if each task is IO-bound and lasts on average 50ms. If
+        connections) in each executor process. The default, 8, can handle 160 req/s in
+        a single executor process if each task is IO-bound and lasts on average 50ms. If
         you have long running CPU-bound tasks, you will want to run multiple executor
-        processes. Default ``32``
+        processes (and set heartbeat_timeout to greater than your maximum expected task
+        duration). Default ``8``
     client_poolsize : int
         The size of the app's Redis connection pool, used to send tasks to the queue.
         Default ``8``
     default_retries : int
         How many times to retry a task in case it raises an exception during execution.
         With 10 retries and the default :func:`fennel.utils.backoff` function, this will
-        be approximately 30 days of retries.
-        Default ``10``
+        be approximately 30 days of retries. Default ``10``
     retry_backoff : Callable
         Which algorithm to use to determine the retry schedule. The default is
         exponential backoff via :func:`fennel.utils.backoff`.
@@ -63,10 +63,11 @@ class Settings(BaseSettings):
     prefetch_count : int
         How many messages to read in a single call to `XREADGROUP`. Default ``1``
     heartbeat_timeout : float
-        How many seconds before a worker is considered dead if heartbeats are missed.
-        Default ``60``
+        How many seconds before an executor is considered dead if heartbeats are missed.
+        If you have long-running CPU-bound tasks, this value should be greater than your
+        maximum expected task duration. Default ``60``
     heartbeat_interval : float
-        How many seconds to sleep between heartbeats are stored for each worker process.
+        How many seconds to sleep between heartbeats are stored for each executor process.
         Default ``6``
     schedule_interval : float
         How many seconds to sleep between polling for scheduled tasks. Default ``4``
@@ -76,7 +77,7 @@ class Settings(BaseSettings):
         How long to wait for results to be computed when calling .get(), seconds.
         Default ``10``
     restults_enabled : bool
-        Whether we store results. Can be disabled if your only use-case is
+        Whether to store results. Can be disabled if your only use-case is
         'fire-and-forget'. Default ``True``
     results_ttl : int
         How long before expiring results in seconds. Default ``3600`` (one hour).
@@ -99,7 +100,7 @@ class Settings(BaseSettings):
     redis_url: str = "redis://127.0.0.1:6379"
     interface: str = "sync"
     processes: int = multiprocessing.cpu_count()
-    concurrency: int = 32
+    concurrency: int = 8
     client_poolsize: int = 8
     default_retries: int = 10
     retry_backoff: PyObject = "fennel.utils.backoff"

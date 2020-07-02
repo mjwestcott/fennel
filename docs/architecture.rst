@@ -92,7 +92,7 @@ for scheduled jobs, and responding to the death of other workers or executors.
 
 CPU-bound tasks benefit from multiple processes. We default to running
 ``multiprocessing.cpu_count()`` executors for this reason. IO-bound tasks will benefit
-from high executor concurrency and we default to running 32 consumer coroutines in each
+from high executor concurrency and we default to running 8 consumer coroutines in each
 executor.
 
 

@@ -1,5 +1,5 @@
+import asyncio
 import random
-import time
 from statistics import mean
 
 import pytest
@@ -10,9 +10,10 @@ from tests.helpers import worker
 
 
 @pytest.fixture(params=["cpu", "sleep"])
-def app(request):
+async def app(request):
     app = App(
         name=f"{request.param}",
+        interface="async",
         processes=1,
         concurrency=8,
         maintenance_interval=2,
@@ -22,8 +23,8 @@ def app(request):
     )
 
     @app.task
-    def sleep(n):
-        time.sleep(5)
+    async def sleep(n):
+        await asyncio.sleep(5)
         return n
 
     @app.task
@@ -33,9 +34,9 @@ def app(request):
 
     for i in range(32):
         if request.param == "cpu":
-            cpu.delay(i)
+            await cpu.delay(i)
         else:
-            sleep.delay(i)
+            await sleep.delay(i)
 
     return app
 

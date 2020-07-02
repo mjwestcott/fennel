@@ -1,7 +1,6 @@
 import random
 import time
 
-import numpy as np
 import pytest
 
 from fennel import App
@@ -29,7 +28,7 @@ def test_worker_loop(benchmark, concurrency, processes, task):
 
     @app.task
     def cpu():
-        np.sort(np.random.random(2_000_000))
+        list(random.random() for _ in range(500_000)).sort()
 
     length = 100
 
