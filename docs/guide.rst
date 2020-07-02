@@ -177,9 +177,9 @@ to fix a bug before you replay the failed tasks.
 
 You can read, replay, or purge the contents of the DLQ as follows::
 
-    $ python -m fennel dlq read --app mymodule:myapp
-    $ python -m fennel dlq replay --app mymodule:myapp
-    $ python -m fennel dlq purge --app mymodule:myapp
+    $ fennel dlq read --app mymodule:myapp
+    $ fennel dlq replay --app mymodule:myapp
+    $ fennel dlq purge --app mymodule:myapp
 
 If you need more granular control, the Fennel client library also provides functions to
 interact with the DLQ programmatically. For example you can replay all jobs matching
@@ -200,7 +200,7 @@ Workers
 
 Workers are launched via the CLI::
 
-    $ python -m fennel worker --app mymodule:myapp
+    $ fennel worker --app mymodule:myapp
 
 You must specify the Python module and Fennel application instance whose tasks the
 worker will execute. See the :doc:`cli` page for more information.

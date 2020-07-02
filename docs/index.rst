@@ -52,7 +52,7 @@ Run `Redis <https://redis.io>`_ and then write your code in ``tasks.py``:
 
 Meanwhile, run the worker::
 
-    $ python -m fennel worker --app tasks:app
+    $ fennel worker --app tasks:app
 
 
 Asynchronous API

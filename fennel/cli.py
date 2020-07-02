@@ -36,7 +36,7 @@ def cli() -> None:
     >>> def f():
     >>>     pass
 
-    Then pass ``foo:app`` as the `app` option: ``$ python -m fennel worker --app=foo:app``
+    Then pass ``foo:app`` as the `app` option: ``$ fennel worker --app=foo:app``
 """,
 )
 @click.option(
