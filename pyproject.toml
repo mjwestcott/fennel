@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fennel"
-version = "0.2.2"
+version = "0.2.3"
 description = "A task queue for Python based on Redis Streams."
 authors = ["Matt Westcott <m.westcott@gmail.com>"]
 license = "MIT"
@@ -15,7 +15,7 @@ uvloop = "^0.14.0"
 click = "^7.0"
 structlog = "^20.0"
 colorama = "^0.4.1"
-pydantic = "^0.32.2"
+pydantic = "^1.5"
 
 [tool.poetry.dev-dependencies]
 black = {version = "^18.3-alpha.0", allow-prereleases = true}

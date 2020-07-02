@@ -39,7 +39,9 @@ class Info:
 
     @validator("first_entry", "last_entry", pre=True, whole=True)
     def deserialise_entries(cls, value):
-        if isinstance(value, Tuple):
+        if value is None:
+            return None
+        elif isinstance(value, Tuple):
             # From redis.Redis
             return value
         elif isinstance(value, List):
