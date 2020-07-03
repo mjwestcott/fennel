@@ -40,7 +40,6 @@ def start(app, exit=EXIT_SIGNAL):
     means giving the executor processes a chance to finish their current tasks.
     """
     autodiscover(app)
-
     running = True
 
     def stop(signum, frame):
@@ -57,7 +56,6 @@ def start(app, exit=EXIT_SIGNAL):
 
     ctx = get_mp_context()
     queue: mp.Queue = ctx.Queue()  # To avoid interleaving executor process logs.
-    QueueListener(queue, logging.StreamHandler()).start()
 
     processes = [
         ctx.Process(target=Executor(app).start, args=(exit, queue), daemon=True)
@@ -66,6 +64,9 @@ def start(app, exit=EXIT_SIGNAL):
 
     for p in processes:
         p.start()
+
+    # Start the logging listener thread after forking.
+    QueueListener(queue, logging.StreamHandler()).start()
 
     try:
         while running and all(p.is_alive() for p in processes):

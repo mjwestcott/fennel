@@ -1,6 +1,11 @@
 Changelog
 =========
 
+v0.2.4 (2020-07-03)
+-------------------
+
+* Fixed multiprocessing bug for thread listener
+
 v0.2.3 (2020-07-02)
 -------------------
 
