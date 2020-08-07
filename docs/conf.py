@@ -13,9 +13,12 @@
 import os
 import sys
 
-from sphinx.ext.autodoc import ClassLevelDocumenter, InstanceAttributeDocumenter
+from sphinx.ext.autodoc import (
+    ClassLevelDocumenter,
+    InstanceAttributeDocumenter,
+)
 
-sys.path.insert(0, os.path.abspath(".."))
+sys.path.insert(0, os.path.abspath("../.."))
 
 
 # XXX: Monkey-patch to remove `=None` from attribute annotations.
