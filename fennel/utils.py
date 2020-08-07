@@ -35,7 +35,7 @@ def backoff(retries: int, jitter: bool = True) -> int:
     -----
     https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/
     """
-    x = 6 ** (retries + 1)
+    x = 6**(retries + 1)
     if jitter:
         x = random.randrange(x // 3, x * 2)
     return min(604_800, x)
@@ -66,7 +66,9 @@ def get_object(name: str) -> Any:
 
 def get_redis(app, poolsize: int):
     return redis.Redis.from_url(
-        app.settings.redis_url, decode_responses=True, max_connections=poolsize
+        app.settings.redis_url,
+        decode_responses=True,
+        max_connections=poolsize,
     )
 
 

@@ -14,9 +14,7 @@ async def test_module(app, job, xid):
     assert (await state.get_status(app, job.uuid)) == SENT
     assert (await state.get_job(app, job.uuid)).status == SENT
     assert (await state.count_jobs(app)) == 1
-    assert (await state.get_messages(app, app.keys.queue)) == [
-        Message(id=xid, uuid=job.uuid)
-    ]
+    assert (await state.get_messages(app, app.keys.queue)) == [Message(id=xid, uuid=job.uuid)]
 
     with executor(app):
         wait_for_results(app, length=1)

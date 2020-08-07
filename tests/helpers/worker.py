@@ -11,7 +11,7 @@ def worker(app):
     # For end-to-end integration tests, will spawn N more
     # executor processes and will shutdown gracefully.
     ctx = get_mp_context()
-    p = ctx.Process(target=start, args=(app,))
+    p = ctx.Process(target=start, args=(app, ))
     try:
         p.start()
         yield p

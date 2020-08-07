@@ -12,34 +12,36 @@ import structlog
 def init_logging(level="debug", format="console"):
     level = level.upper()
 
-    logging.config.dictConfig(
-        {
-            "version": 1,
-            "disable_existing_loggers": True,
-            "formatters": {"standard": {"format": "%(message)s"}},
-            "handlers": {
-                "fennel.client": {
-                    "level": level,
-                    "formatter": "standard",
-                    "class": "logging.StreamHandler",
-                    "stream": "ext://sys.stderr",
-                }
+    logging.config.dictConfig({
+        "version": 1,
+        "disable_existing_loggers": True,
+        "formatters": {
+            "standard": {
+                "format": "%(message)s",
+            }
+        },
+        "handlers": {
+            "fennel.client": {
+                "level": level,
+                "formatter": "standard",
+                "class": "logging.StreamHandler",
+                "stream": "ext://sys.stderr",
+            }
+        },
+        "loggers": {
+            "fennel.client": {
+                "handlers": ["fennel.client"],
+                "level": level,
+                "propagate": False,
             },
-            "loggers": {
-                "fennel.client": {
-                    "handlers": ["fennel.client"],
-                    "level": level,
-                    "propagate": False,
-                },
-                "fennel.worker": {
-                    # To be used with a custom QueueHandler to prevent interleaving
-                    # among the multiple processes.
-                    "level": level,
-                    "propagate": False,
-                },
+            "fennel.worker": {
+                # To be used with a custom QueueHandler to prevent interleaving
+                # among the multiple processes.
+                "level": level,
+                "propagate": False,
             },
-        }
-    )
+        },
+    })
 
     structlog.configure(
         logger_factory=logging.getLogger,

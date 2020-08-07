@@ -40,7 +40,7 @@ def test_worker_loop(benchmark, concurrency, processes, task):
 
     benchmark.pedantic(
         start,
-        args=(app,),
+        args=(app, ),
         kwargs={"exit": EXIT_COMPLETE},
         setup=setup,
         rounds=3,

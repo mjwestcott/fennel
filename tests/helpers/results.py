@@ -13,7 +13,7 @@ def all_results(app: App):
         values = pipe.execute()
     results = [json.loads(v[0]) for v in values]
 
-    return [
-        Result(return_value=r["return_value"], exception=r["exception"])
-        for r in results
-    ]
+    return [Result(
+        return_value=r["return_value"],
+        exception=r["exception"],
+    ) for r in results]

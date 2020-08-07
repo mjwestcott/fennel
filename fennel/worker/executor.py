@@ -18,7 +18,6 @@ from fennel.worker.broker import Broker
 
 logger = structlog.get_logger("fennel.worker")
 
-
 EXIT_SIGNAL = "signal"
 EXIT_COMPLETE = "complete"
 

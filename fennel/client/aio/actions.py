@@ -87,7 +87,10 @@ async def _iter_dlq(app, batchsize=100):
 
     while True:
         messages = await app.aioclient.xread(
-            [app.keys.dead], latest_ids=[xid], count=batchsize, timeout=None
+            [app.keys.dead],
+            latest_ids=[xid],
+            count=batchsize,
+            timeout=None,
         )
         if not messages:
             return

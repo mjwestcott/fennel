@@ -64,7 +64,11 @@ class Broker:
         return broker
 
     async def read(
-        self, consumer: str, count: int, timeout: int = 4000, recover: bool = False
+        self,
+        consumer: str,
+        count: int,
+        timeout: int = 4000,
+        recover: bool = False,
     ) -> List:
         """
         Read `count` jobs from the stream.

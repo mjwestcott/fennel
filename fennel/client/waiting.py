@@ -11,7 +11,6 @@ def gather(results: Iterable[AsyncResult], task_timeout=10, return_exceptions=Tr
 
     Has the same semantics as `asyncio.gather`.
     """
-
     async def _gather():
         async def _get(result, timeout):
             loop = asyncio.get_running_loop()
@@ -29,7 +28,6 @@ def wait(results: Iterable[AsyncResult], timeout: int, return_when="ALL_COMPLETE
 
     Has the same semantics as `asyncio.wait`.
     """
-
     async def _wait():
         async def _get(result):
             loop = asyncio.get_running_loop()

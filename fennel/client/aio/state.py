@@ -25,9 +25,7 @@ async def get_job(app, uuid) -> Job:
 
 @aioclient
 async def count_jobs(app):
-    return len(
-        [x async for x in app.aioclient.iscan(match=app.keys.status_prefix + ":*")]
-    )
+    return len([x async for x in app.aioclient.iscan(match=app.keys.status_prefix + ":*")])
 
 
 @aioclient
@@ -45,9 +43,7 @@ async def get_info(app, key):
 @aioclient
 async def get_groups(app, key):
     groups = await app.aioclient.xinfo_groups(key)
-    return [
-        models.Group(**{k.replace("-", "_"): v for k, v in d.items()}) for d in groups
-    ]
+    return [models.Group(**{k.replace("-", "_"): v for k, v in d.items()}) for d in groups]
 
 
 @aioclient
@@ -63,16 +59,12 @@ async def get_stream(app, key, n=100):
 @aioclient
 async def get_result(app, key):
     value = json.loads(await app.aioclient.lrange(key, 0, 1)[0])
-    return models.Result(
-        return_value=value["return_value"], exception=value["exception"]
-    )
+    return models.Result(return_value=value["return_value"], exception=value["exception"])
 
 
 @aioclient
 async def count_results(app):
-    return len(
-        [x async for x in app.aioclient.iscan(match=app.keys.result_prefix + ":*")]
-    )
+    return len([x async for x in app.aioclient.iscan(match=app.keys.result_prefix + ":*")])
 
 
 @aioclient

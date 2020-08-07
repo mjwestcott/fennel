@@ -92,7 +92,6 @@ class Settings(BaseSettings):
         called relative to current working directory. Can be set to the empty string to
         disable. Default ``'**/tasks.py'``
     """
-
     class Config:
         env_prefix = "FENNEL_"
         case_insensitive = True

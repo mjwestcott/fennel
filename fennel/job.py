@@ -39,7 +39,6 @@ class Job:
     uuid : str
         Base64-encoded unique identifier.
     """
-
     task: str
     args: List
     kwargs: Dict
@@ -86,6 +85,7 @@ class Job:
 
     @property
     def result(self) -> str:
-        return json.dumps(
-            {"return_value": self.return_value, "exception": self.exception}
-        )
+        return json.dumps({
+            "return_value": self.return_value,
+            "exception": self.exception,
+        })

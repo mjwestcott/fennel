@@ -10,7 +10,12 @@ from tests.helpers import executor
 
 @pytest.fixture
 def app():
-    return App(name="testapp", interface="async", processes=1, concurrency=2)
+    return App(
+        name="testapp",
+        interface="async",
+        processes=1,
+        concurrency=2,
+    )
 
 
 @pytest.mark.asyncio

@@ -11,7 +11,11 @@ from tests.helpers import executor
 @pytest.fixture
 def app():
     return App(
-        name="testapp", interface="async", processes=1, concurrency=2, task_timeout=1
+        name="testapp",
+        interface="async",
+        processes=1,
+        concurrency=2,
+        task_timeout=1,
     )
 
 

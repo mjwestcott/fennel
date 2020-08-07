@@ -58,5 +58,9 @@ def test_heartbeats_arrive(app):
 
     beats = sorted(set(beats))
     diff = [(b - a).total_seconds() for a, b in zip(beats, beats[1:])]
-    assert 0.1 <= mean(diff) <= 0.5  # The mean difference between two consecutive beats (0.1 perfect)
-    assert len(diff) >= 5  # Ensure a minimum number arrived in 5s (50 perfect)
+
+    # The mean difference between two consecutive beats (0.1 perfect)
+    assert 0.1 <= mean(diff) <= 0.5
+
+    # Ensure a minimum number arrived in 5s (50 perfect)
+    assert len(diff) >= 5

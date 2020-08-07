@@ -30,7 +30,12 @@ def __reset(settings):
 
 @pytest.fixture
 def app():
-    return App(name="testapp", processes=1, concurrency=2, read_timeout=500)
+    return App(
+        name="testapp",
+        processes=1,
+        concurrency=2,
+        read_timeout=500,
+    )
 
 
 @pytest.fixture
@@ -105,7 +110,10 @@ def dead_job():
     return random_job(
         task=failing_task.name,
         status=DEAD,
-        exception={"type": "Exception", "args": ["foo"]},
+        exception={
+            "type": "Exception",
+            "args": ["foo"],
+        },
     )
 
 

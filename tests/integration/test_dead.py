@@ -19,7 +19,7 @@ def test_dead_e2e():
 
     @app.task(retries=0)
     def example():
-        raise Chaos(f"Task failure")
+        raise Chaos("Task failure")
 
     x = example.delay()
 

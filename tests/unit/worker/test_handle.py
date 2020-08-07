@@ -42,13 +42,14 @@ async def test_ack_results_enabled(mocker, executor, xid, job, consumer_id):
 async def test_ack_on_failure(mocker, executor, xid, failing_job, consumer_id, results):
     failing_job.max_retries = 1
     executor.app.settings.results_enabled = results
-    await executor._handle(
-        xid, failing_job.replace(status=status.EXECUTING), consumer_id
-    )
+    await executor._handle(xid, failing_job.replace(status=status.EXECUTING), consumer_id)
 
     expected = failing_job.replace(
         status=status.EXECUTING,
-        exception={"original_type": "Exception", "original_args": ["foo"]},
+        exception={
+            "original_type": "Exception",
+            "original_args": ["foo"],
+        },
         return_value=None,
         tries=failing_job.tries + 1,
     )
@@ -63,13 +64,14 @@ async def test_ack_on_failure(mocker, executor, xid, failing_job, consumer_id, r
 async def test_ack_and_dead(mocker, executor, xid, failing_job, consumer_id, results):
     failing_job.max_retries = 0
     executor.app.settings.results_enabled = results
-    await executor._handle(
-        xid, failing_job.replace(status=status.EXECUTING), consumer_id
-    )
+    await executor._handle(xid, failing_job.replace(status=status.EXECUTING), consumer_id)
 
     expected = failing_job.replace(
         status=status.EXECUTING,
-        exception={"original_type": "Exception", "original_args": ["foo"]},
+        exception={
+            "original_type": "Exception",
+            "original_args": ["foo"],
+        },
         return_value=None,
         tries=failing_job.tries + 1,
     )

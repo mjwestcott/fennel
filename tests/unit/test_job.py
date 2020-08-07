@@ -86,4 +86,4 @@ def test_deserialise(job, as_dict):
 
 
 def test_result(job):
-    assert job.result == f'{{"return_value": null, "exception": {{}}}}'
+    assert job.result == '{"return_value": null, "exception": {}}'

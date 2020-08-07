@@ -47,9 +47,7 @@ async def test_ack_and_store(app, broker, message, xid, consumer_id, job):
 
 
 @pytest.mark.asyncio
-async def test_ack_and_schedule(
-    app, broker, failing_message, xid, consumer_id, failing_job
-):
+async def test_ack_and_schedule(app, broker, failing_message, xid, consumer_id, failing_job):
     await broker.read(consumer_id, count=1)
     state = get_state(app)
     assert len(state.queue.messages) == 1
@@ -71,9 +69,7 @@ async def test_ack_and_schedule(
 
 
 @pytest.mark.asyncio
-async def test_ack_and_dead(
-    app, broker, failing_message, xid, consumer_id, failing_job
-):
+async def test_ack_and_dead(app, broker, failing_message, xid, consumer_id, failing_job):
     await broker.read(consumer_id, count=1)
     state = get_state(app)
     assert len(state.queue.messages) == 1

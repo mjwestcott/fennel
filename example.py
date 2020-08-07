@@ -9,7 +9,7 @@ app = App(name="example", results_ttl=120, interface="sync")
 
 @app.task
 def square(n: int) -> int:
-    return n ** 2
+    return n**2
 
 
 @app.task

@@ -32,9 +32,6 @@ project = "Fennel"
 copyright = "2019, Matt Westcott"
 author = "Matt Westcott"
 
-# The full version, including alpha/beta/rc tags
-release = "0.1.0"
-
 
 # -- General configuration ---------------------------------------------------
 

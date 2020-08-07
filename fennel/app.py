@@ -161,7 +161,6 @@ class App:
         >>> await x.status()
         SUCCESS
         """
-
         @wraps(func)
         def wrapper(f: Callable):
             nonlocal retries

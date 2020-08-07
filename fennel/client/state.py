@@ -36,9 +36,7 @@ def get_info(app, key):
 
 def get_groups(app, key):
     groups = app.client.xinfo_groups(key)
-    return [
-        models.Group(**{k.replace("-", "_"): v for k, v in d.items()}) for d in groups
-    ]
+    return [models.Group(**{k.replace("-", "_"): v for k, v in d.items()}) for d in groups]
 
 
 def get_stream(app, key, n=100):
@@ -52,9 +50,7 @@ def get_stream(app, key, n=100):
 
 def get_result(app, key):
     value = json.loads(app.client.lrange(key, 0, 1)[0])
-    return models.Result(
-        return_value=value["return_value"], exception=value["exception"]
-    )
+    return models.Result(return_value=value["return_value"], exception=value["exception"])
 
 
 def count_results(app):
