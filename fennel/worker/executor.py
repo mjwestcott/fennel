@@ -8,10 +8,11 @@ from logging.handlers import QueueHandler
 from multiprocessing import Queue
 from typing import Optional
 
+import anyio
 import structlog
 import uvloop
 
-from fennel.exceptions import UnknownTask
+from fennel.exceptions import Completed, UnknownTask
 from fennel.job import Job
 from fennel.utils import base64uuid, duration
 from fennel.worker.broker import Broker
@@ -42,7 +43,6 @@ class Executor:
         self.app = app
         self.settings = app.settings
         self.executor_id: str = base64uuid()
-        self.must_stop = False
         self.broker: Optional[Broker] = None  # Set on .start()
 
     def start(self, exit: str = EXIT_SIGNAL, queue: Queue = None) -> None:
@@ -73,37 +73,37 @@ class Executor:
             logging.getLogger("fennel.worker").addHandler(QueueHandler(queue))
 
         uvloop.install()
-        asyncio.run(self._start(exit=exit))
-
-    def stop(self):
-        """
-        Gracefully stop all running coroutines, giving them a chance to complete execution
-        of their current task.
-        """
-        if not self.must_stop:
-            logger.warning("shutting-down", executor=self.executor_id)
-            self.must_stop = True
+        anyio.run(self._start, exit)
 
     async def _start(self, exit) -> None:
-        loop = asyncio.get_running_loop()
-        loop.add_signal_handler(signal.SIGINT, self.stop)
-        loop.add_signal_handler(signal.SIGTERM, self.stop)
-
-        n = self.settings.concurrency
         self.broker = await Broker.for_app(self.app)
+        try:
+            logger.warning("executor-started", executor=self.executor_id)
+            await self._supervise(exit)
+        except Completed:
+            pass
+        finally:
+            logger.warning("executor-stopped", executor=self.executor_id)
 
-        consumers = [self._loop(f"{self.executor_id}:{i}", exit) for i in range(n)]
-        maintainers = [self._heartbeat(), self._scheduler(), self._maintenance()]
+    async def _supervise(self, exit):
+        async with anyio.open_signal_receiver(signal.SIGINT, signal.SIGTERM) as signals:
+            async with anyio.create_task_group() as tg:
+                await tg.spawn(self._heartbeat)
+                await tg.spawn(self._scheduler)
+                await tg.spawn(self._maintenance)
 
-        logger.warning("executor-started", executor=self.executor_id)
-        await asyncio.gather(*consumers + maintainers)
-        logger.warning("executor-stopped", executor=self.executor_id)
+                for i in range(self.settings.concurrency):
+                    await tg.spawn(self._loop, f"{self.executor_id}:{i}", exit)
+
+                async for signum in signals:
+                    await tg.cancel_scope.cancel()
+                    return
 
     async def _loop(self, consumer_id: str, exit: str) -> None:
         """
         The main consumer loop: read data from the stream and handle processing.
         """
-        while not self.must_stop:
+        while True:
             results = await self.broker.read(
                 consumer=consumer_id,
                 count=self.settings.prefetch_count,
@@ -112,10 +112,11 @@ class Executor:
             )
 
             if exit == EXIT_COMPLETE and not results:
-                self.stop()
-                return
+                raise Completed
 
             for xid, fields in results:
+                await anyio.sleep(0)  # Check for cancellation.
+
                 job = await self.broker.executing(fields["uuid"])
                 await self._handle(xid, job, consumer_id)
 
@@ -182,10 +183,10 @@ class Executor:
         its consumers' messages will be deleted and added to the stream for
         reprocessing.
         """
-        while not self.must_stop:
+        while True:
             await self.broker.heartbeat(self.executor_id)
             logger.info("heartbeat", executor=self.executor_id)
-            await asyncio.sleep(self.settings.heartbeat_interval)
+            await anyio.sleep(self.settings.heartbeat_interval)
 
     async def _scheduler(self) -> None:
         """
@@ -193,10 +194,10 @@ class Executor:
         in a sorted set by their expected time of arrival and we find tasks whose value
         is less than 'now'.
         """
-        while not self.must_stop:
+        while True:
             results = await self.broker.process_schedule()
             logger.info("poll-schedule", executor=self.executor_id, results=results)
-            await asyncio.sleep(self.settings.schedule_interval)
+            await anyio.sleep(self.settings.schedule_interval)
 
     async def _maintenance(self) -> None:
         """
@@ -207,7 +208,7 @@ class Executor:
             consumers to process.
             3. Delete the dead consumers (and the executor's last heartbeat).
         """
-        while not self.must_stop:
+        while True:
             results = await self.broker.maintenance(self.settings.heartbeat_timeout)
             logger.info("maintenance", executor=self.executor_id, results=results)
-            await asyncio.sleep(self.settings.maintenance_interval)
+            await anyio.sleep(self.settings.maintenance_interval)

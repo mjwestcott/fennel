@@ -62,3 +62,10 @@ class Chaos(Exception):
     """
     Used in tests to ensure failures are handled properly.
     """
+
+
+class Completed(Exception):
+    """
+    Used internally to shutdown an Executor if the exit condition is completing all
+    tasks.
+    """
