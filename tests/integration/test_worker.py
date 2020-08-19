@@ -16,6 +16,7 @@ def test_entrypoint():
         maintenance_interval=0.1,
         schedule_interval=0.1,
         heartbeat_interval=0.1,
+        grace_period=1,
     )
 
     @app.task

@@ -47,9 +47,9 @@ def start(app, exit=EXIT_SIGNAL):
         running = False
 
         if signum == 2:
-            logger.critical("SIGINT")
+            logger.critical("sigint")
         elif signum == 15:
-            logger.critical("SIGTERM")
+            logger.critical("sigterm")
 
     signal.signal(signal.SIGINT, stop)
     signal.signal(signal.SIGTERM, stop)

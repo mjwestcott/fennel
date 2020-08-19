@@ -2,6 +2,7 @@ import asyncio
 import logging
 import signal
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import asynccontextmanager
 from dataclasses import asdict
 from functools import partial
 from logging.handlers import QueueHandler
@@ -44,6 +45,9 @@ class Executor:
         self.settings = app.settings
         self.executor_id: str = base64uuid()
         self.broker: Optional[Broker] = None  # Set on .start()
+        self.must_stop: bool = False
+        self.running: int = 0
+        self.done: anyio.abc.Event = None
 
     def start(self, exit: str = EXIT_SIGNAL, queue: Queue = None) -> None:
         """
@@ -77,6 +81,7 @@ class Executor:
 
     async def _start(self, exit) -> None:
         self.broker = await Broker.for_app(self.app)
+        self.done = anyio.create_event()
         try:
             logger.warning("executor-started", executor=self.executor_id)
             await self._supervise(exit)
@@ -96,29 +101,48 @@ class Executor:
                     await tg.spawn(self._loop, f"{self.executor_id}:{i}", exit)
 
                 async for signum in signals:
+                    logger.critical("shutting-down")
+                    async with anyio.move_on_after(self.settings.grace_period) as scope:
+                        self.must_stop = True
+                        await self.done.wait()
+
+                    if scope.cancel_called:
+                        logger.warning("grace-period-exceeded")
+
                     await tg.cancel_scope.cancel()
                     return
+
+    @asynccontextmanager
+    async def is_running(self):
+        self.running += 1
+        try:
+            yield
+        finally:
+            self.running -= 1
+            if self.running == 0:
+                await self.done.set()
 
     async def _loop(self, consumer_id: str, exit: str) -> None:
         """
         The main consumer loop: read data from the stream and handle processing.
         """
-        while True:
-            results = await self.broker.read(
-                consumer=consumer_id,
-                count=self.settings.prefetch_count,
-                recover=False,
-                timeout=self.settings.read_timeout,
-            )
-
-            if exit == EXIT_COMPLETE and not results:
-                raise Completed
-
-            for xid, fields in results:
+        async with self.is_running():
+            while not self.must_stop:
                 await anyio.sleep(0)  # Check for cancellation.
 
-                job = await self.broker.executing(fields["uuid"])
-                await self._handle(xid, job, consumer_id)
+                results = await self.broker.read(
+                    consumer=consumer_id,
+                    count=self.settings.prefetch_count,
+                    recover=False,
+                    timeout=self.settings.read_timeout,
+                )
+
+                if exit == EXIT_COMPLETE and not results:
+                    raise Completed
+
+                for xid, fields in results:
+                    job = await self.broker.executing(fields["uuid"])
+                    await self._handle(xid, job, consumer_id)
 
     async def _handle(self, xid: str, job: Job, consumer_id: str) -> None:
         """

@@ -25,6 +25,7 @@ def app():
         schedule_interval=0.1,
         heartbeat_interval=0.1,
         heartbeat_timeout=1,
+        grace_period=1,
     )
 
     @app.task
