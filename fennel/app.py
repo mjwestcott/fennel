@@ -8,7 +8,7 @@ from fennel.client.aio import Task as AsyncTask
 from fennel.keys import Keys
 from fennel.logging import init_logging
 from fennel.settings import Settings
-from fennel.utils import EMPTY, get_redis
+from fennel.utils import EMPTY, get_aredis, get_redis
 
 logger = structlog.get_logger("fennel.client")
 
@@ -75,8 +75,8 @@ class App:
         self.settings: Settings = Settings(**kwargs)
         self.task_map: Dict[str, Callable] = {}
         self.keys: Keys = Keys.for_app(self)
-        self.client = get_redis(self, poolsize=self.settings.client_poolsize)
-        self.aioclient = None  # Created lazily on first use since it must be awaited.
+        self.client = get_redis(self)
+        self.aioclient = get_aredis(self)
 
         if self.settings.interface == "sync":
             self.task_class = SyncTask

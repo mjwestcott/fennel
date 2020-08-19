@@ -1,14 +1,14 @@
 from pathlib import Path
 from typing import Any, Callable, Dict, List
 
-import aioredis
+import aredis
 import structlog
 
 from fennel import status
 from fennel.app import App
 from fennel.job import Job
 from fennel.keys import Keys
-from fennel.utils import get_aioredis, now
+from fennel.utils import get_aredis, now
 
 logger = structlog.get_logger("fennel.worker")
 
@@ -16,7 +16,7 @@ logger = structlog.get_logger("fennel.worker")
 class Broker:
     def __init__(
         self,
-        client: aioredis.Redis,
+        client: aredis.StrictRedis,
         keys: Keys,
         results_ttl: int,
         retry_backoff: Callable,
@@ -30,7 +30,7 @@ class Broker:
         Parameters
         ----------
         client : aioredis.Redis
-            Used to communicate with Redis via a connection pool.
+            Used to communicate with Redis.
         keys : fennel.keys.Keys
             A collection of Redis keys configured by the app.
         results_ttl : int
@@ -49,12 +49,11 @@ class Broker:
     async def for_app(cls, app: App) -> "Broker":
         """
         Construct the broker in an async context using this method. Actions:
-            1. Make a connection pool.
-            2. Create the consumer group if it doesn't already exist.
-            3. Load Lua scripts.
+            1. Create the consumer group if it doesn't already exist.
+            2. Load Lua scripts.
         """
         broker = cls(
-            client=await get_aioredis(app, poolsize=app.settings.concurrency),
+            client=get_aredis(app),
             keys=app.keys,
             results_ttl=app.settings.results_ttl,
             retry_backoff=app.settings.retry_backoff,
@@ -73,51 +72,50 @@ class Broker:
         """
         Read `count` jobs from the stream.
         """
-        with await self.client as c:
-            response = await c.xread_group(
-                group_name=self.keys.group,
-                consumer_name=consumer,
-                streams=[self.keys.queue],
-                latest_ids=["0" if recover else ">"],
-                count=count,
-                timeout=timeout,
-            )
-        return [(xid, fields) for _, xid, fields in response]
+        results = await self.client.xreadgroup(
+            group=self.keys.group,
+            consumer_id=consumer,
+            count=count,
+            block=timeout,
+            **{self.keys.queue: "0" if recover else ">"},
+        )
+        return [(xid, fields) for _, result in results.items() for xid, fields in result]
 
     async def executing(self, uuid: str) -> Job:
         """
         Set the status entry for the given uuid to status.EXECUTING
         and return the associated Job.
         """
-        key = self.keys.status_prefix + f":{uuid}"
-        tx = self.client.multi_exec()
-        tx.hmset_dict(key, status=status.EXECUTING)
-        tx.hgetall(key)
-        _, fields = await tx.execute()
+        async with await self.client.pipeline() as pipe:
+            key = self.keys.status_prefix + f":{uuid}"
+            await pipe.hmset(key, {"status": status.EXECUTING})
+            await pipe.hgetall(key)
+            _, fields = await pipe.execute()
+
         return Job.deserialise(fields)
 
-    def _ack(self, tx, xid):
+    async def _ack(self, pipe, xid):
         key = self.keys.queue
-        tx.xack(key, self.keys.group, xid)
-        tx.xdel(key, xid)
+        await pipe.xack(key, self.keys.group, xid)
+        await pipe.xdel(key, xid)
 
-    def _store(self, tx, job):
+    async def _store(self, pipe, job):
         key = self.keys.result(job)
-        tx.delete(key)
-        tx.lpush(key, job.result)
-        tx.expire(key, self.results_ttl)
+        await pipe.delete(key)
+        await pipe.lpush(key, job.result)
+        await pipe.expire(key, self.results_ttl)
 
-    def _status(self, tx, job, ttl=None):
+    async def _status(self, pipe, job, ttl=None):
         key = self.keys.status(job)
-        tx.hmset_dict(key, job.serialise())
+        await pipe.hmset(key, job.serialise())
         if ttl:
-            tx.expire(key, ttl)
+            await pipe.expire(key, ttl)
 
-    def _schedule(self, tx, job, eta):
-        tx.zadd(self.keys.schedule, eta, job.uuid)
+    async def _schedule(self, pipe, job, eta):
+        await pipe.zadd(self.keys.schedule, eta, job.uuid)
 
-    def _dead(self, tx, job):
-        tx.xadd(self.keys.dead, {"uuid": job.uuid})
+    async def _dead(self, pipe, job):
+        await pipe.xadd(self.keys.dead, {"uuid": job.uuid})
 
     async def ack(self, xid: str, job: Job) -> List:
         """
@@ -129,10 +127,10 @@ class Broker:
         """
         job = job.replace(status=status.SUCCESS)
 
-        tx = self.client.multi_exec()
-        self._ack(tx, xid)
-        self._status(tx, job, ttl=self.results_ttl)
-        return await tx.execute()
+        async with await self.client.pipeline() as pipe:
+            await self._ack(pipe, xid)
+            await self._status(pipe, job, ttl=self.results_ttl)
+            return await pipe.execute()
 
     async def ack_and_store(self, xid: str, job: Job) -> List:
         """
@@ -147,11 +145,11 @@ class Broker:
         """
         job = job.replace(status=status.SUCCESS)
 
-        tx = self.client.multi_exec()
-        self._ack(tx, xid)
-        self._store(tx, job)
-        self._status(tx, job, ttl=self.results_ttl)
-        return await tx.execute()
+        async with await self.client.pipeline() as pipe:
+            await self._ack(pipe, xid)
+            await self._store(pipe, job)
+            await self._status(pipe, job, ttl=self.results_ttl)
+            return await pipe.execute()
 
     async def ack_and_schedule(self, xid: str, job: Job) -> List:
         """
@@ -164,11 +162,11 @@ class Broker:
         job = job.replace(status=status.RETRY)
         eta = now() + int(self.retry_backoff(job.tries))
 
-        tx = self.client.multi_exec()
-        self._ack(tx, xid)
-        self._schedule(tx, job, eta)
-        self._status(tx, job, ttl=None)
-        return await tx.execute()
+        async with await self.client.pipeline() as pipe:
+            await self._ack(pipe, xid)
+            await self._schedule(pipe, job, eta)
+            await self._status(pipe, job, ttl=None)
+            return await pipe.execute()
 
     async def ack_and_dead(self, xid: str, job: Job) -> List:
         """
@@ -183,19 +181,19 @@ class Broker:
         """
         job = job.replace(status=status.DEAD)
 
-        tx = self.client.multi_exec()
-        self._ack(tx, xid)
-        self._dead(tx, job)
-        self._store(tx, job)
-        self._status(tx, job, ttl=None)
-        return await tx.execute()
+        async with await self.client.pipeline() as pipe:
+            await self._ack(pipe, xid)
+            await self._dead(pipe, job)
+            await self._store(pipe, job)
+            await self._status(pipe, job, ttl=None)
+            return await pipe.execute()
 
     async def process_schedule(self) -> List:
         """
         Retrieve any jobs whose ETA has passed and add them to the stream.
         """
-        return await self.client.evalsha(
-            digest=self.scripts["schedule"],
+        fn = self.scripts["schedule"]
+        return await fn.execute(
             keys=[self.keys.schedule, self.keys.queue],
             args=[now()],
         )
@@ -215,8 +213,8 @@ class Broker:
             consumers to process.
             3. Delete the dead consumers (and the worker's last heartbeat).
         """
-        return await self.client.evalsha(
-            digest=self.scripts["maintenance"],
+        fn = self.scripts["maintenance"]
+        return await fn.execute(
             keys=[self.keys.queue, self.keys.heartbeats],
             args=[self.keys.group, now(), threshold],
         )
@@ -227,7 +225,7 @@ class Broker:
         """
         for key in [self.keys.queue, self.keys.dead]:
             cmd = ["XGROUP", "CREATE", key, self.keys.group, "0", "MKSTREAM"]
-            await self.client.execute(*cmd)
+            await self.client.execute_command(*cmd)
 
     async def maybe_create_group(self) -> Any:
         """
@@ -236,7 +234,7 @@ class Broker:
         try:
             return await self.create_group()
             logger.debug("group-created", group=self.keys.group)
-        except aioredis.errors.ReplyError as e:
+        except aredis.ResponseError as e:
             if str(e).startswith("BUSYGROUP"):
                 logger.debug("group-exists", group=self.keys.group)
             else:
@@ -247,5 +245,4 @@ class Broker:
         Load the Lua scripts into Redis.
         """
         for script in (Path(__file__).parent / "lua").glob("*.lua"):
-            sha1 = await self.client.script_load(script.read_text())
-            self.scripts[script.stem] = sha1
+            self.scripts[script.stem] = self.client.register_script(script.read_text())

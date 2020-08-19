@@ -85,7 +85,7 @@ def _iter_dlq(app, batchsize=100):
             if not messages:
                 return
             else:
-                xid = messages[-1][1]
+                xid = messages[-1][0]
 
             with app.client.pipeline() as pipe:
                 for xid, fields in messages:

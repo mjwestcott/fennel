@@ -4,20 +4,17 @@ from fennel.client.aio.actions import purge_dead, read_dead, replay_dead
 from fennel.client.aio.state import get_job, get_state
 from fennel.exceptions import JobNotFound
 from fennel.status import DEAD, SENT
-from fennel.utils import get_aioredis
 from tests.helpers import random_job
 
 
 @pytest.fixture
 @pytest.mark.asyncio
 async def dead_job(app, failing_job):
-    app.aioclient = await get_aioredis(app, app.settings.client_poolsize)
-
     failing_job.tries = 1
     failing_job.max_retries = 0
     failing_job.status = DEAD
     key = app.keys.status(failing_job)
-    await app.aioclient.hmset_dict(key, failing_job.serialise())
+    await app.aioclient.hmset(key, failing_job.serialise())
     await app.aioclient.xadd(app.keys.dead, {"uuid": failing_job.uuid})
 
     state = await get_state(app)
@@ -72,15 +69,13 @@ async def test_purge(app, broker, failing_job, dead_job):
 
 @pytest.mark.asyncio
 async def test_replay_filter(app, broker, failing_job):
-    app.aioclient = await get_aioredis(app, app.settings.client_poolsize)
-
     @app.task
     def mytask():
         return "1"
 
     for _ in range(10):
         job = random_job(tries=1, max_retries=0, status=DEAD, task=mytask.name)
-        await app.aioclient.hmset_dict(app.keys.status(job), job.serialise())
+        await app.aioclient.hmset(app.keys.status(job), job.serialise())
         await app.aioclient.xadd(app.keys.dead, {"uuid": job.uuid})
 
     @app.task
@@ -89,7 +84,7 @@ async def test_replay_filter(app, broker, failing_job):
 
     for _ in range(5):
         job = random_job(tries=4, max_retries=3, status=DEAD, task=anothertask.name)
-        await app.aioclient.hmset_dict(app.keys.status(job), job.serialise())
+        await app.aioclient.hmset(app.keys.status(job), job.serialise())
         await app.aioclient.xadd(app.keys.dead, {"uuid": job.uuid})
 
     state = await get_state(app)

@@ -47,9 +47,6 @@ class Settings(BaseSettings):
         you have long running CPU-bound tasks, you will want to run multiple executor
         processes (and set heartbeat_timeout to greater than your maximum expected task
         duration). Default ``8``
-    client_poolsize : int
-        The size of the app's Redis connection pool, used to send tasks to the queue.
-        Default ``8``
     default_retries : int
         How many times to retry a task in case it raises an exception during execution.
         With 10 retries and the default :func:`fennel.utils.backoff` function, this will
@@ -100,7 +97,6 @@ class Settings(BaseSettings):
     interface: str = "sync"
     processes: int = multiprocessing.cpu_count()
     concurrency: int = 8
-    client_poolsize: int = 8
     default_retries: int = 10
     retry_backoff: PyObject = "fennel.utils.backoff"
     read_timeout = 4000
