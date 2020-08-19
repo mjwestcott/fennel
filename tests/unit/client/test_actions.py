@@ -69,7 +69,7 @@ def test_replay_filter(app, broker, failing_job):
 
     for _ in range(10):
         job = random_job(tries=1, max_retries=0, status=DEAD, task=mytask.name)
-        app.client.hmset(app.keys.status(job), job.serialise())
+        app.client.hset(app.keys.status(job), mapping=job.serialise())
         app.client.xadd(app.keys.dead, {"uuid": job.uuid})
 
     @app.task

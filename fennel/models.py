@@ -3,7 +3,6 @@ from dataclasses import asdict, is_dataclass
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
-from pydantic import validator
 from pydantic.dataclasses import dataclass
 
 
@@ -36,20 +35,6 @@ class Info:
     last_generated_id: str
     first_entry: Optional[Tuple[str, Dict]]
     last_entry: Optional[Tuple[str, Dict]]
-
-    @validator("first_entry", "last_entry", pre=True, whole=True)
-    def deserialise_entries(cls, value):
-        if value is None:
-            return None
-        elif isinstance(value, Tuple):
-            # From redis.Redis
-            return value
-        elif isinstance(value, List):
-            # From aioredis.Redis, convert to the other form
-            xid, entry = value
-            it = iter(entry)
-            return (xid, dict(zip(it, it)))
-        raise ValueError
 
 
 @dataclass

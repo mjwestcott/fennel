@@ -52,5 +52,5 @@ def test_worker_loop(benchmark, concurrency, processes, task):
 def _load(pipe, app, task, n):
     for i in range(n):
         job = random_job(task=task, args=[], status=SENT)
-        pipe.hmset(app.keys.status(job), job.serialise())
+        pipe.hset(app.keys.status(job), mapping=job.serialise())
         pipe.xadd(app.keys.queue, {"uuid": job.uuid})

@@ -28,7 +28,7 @@ def test_entrypoint():
     with app.client.pipeline(transaction=False) as pipe:
         for i in range(length):
             job = random_job(task=foo.name, args=[i], status=SENT)
-            pipe.hmset(app.keys.status(job), job.serialise())
+            pipe.hset(app.keys.status(job), mapping=job.serialise())
             pipe.xadd(app.keys.queue, fields={"uuid": job.uuid})
         pipe.execute()
 
