@@ -1,4 +1,4 @@
-import aioredis
+import aredis
 import pytest
 import redis
 
@@ -145,4 +145,4 @@ def value():
 
 @pytest.fixture
 async def async_client(app):
-    return await aioredis.create_redis(app.settings.redis_url, encoding="utf-8")
+    return await aredis.create_redis(app.settings.redis_url, decode_responses=True)

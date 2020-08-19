@@ -14,7 +14,6 @@ def app():
         name="testapp",
         interface="sync",
         processes=1,
-        client_poolsize=12,
         read_timeout=500,
         task_timeout=1,
     )

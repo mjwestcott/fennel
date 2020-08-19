@@ -7,7 +7,7 @@ import uuid
 from contextlib import contextmanager
 from typing import Any, Generator
 
-import aioredis
+import aredis
 import redis
 
 EMPTY = object()  # A unique value used to distinguish emptiness from None
@@ -64,20 +64,17 @@ def get_object(name: str) -> Any:
     return getattr(module, instance_name)
 
 
-def get_redis(app, poolsize: int):
+def get_redis(app):
     return redis.Redis.from_url(
         app.settings.redis_url,
         decode_responses=True,
-        max_connections=poolsize,
     )
 
 
-async def get_aioredis(app, poolsize: int):
-    return await aioredis.create_redis_pool(
+def get_aredis(app):
+    return aredis.StrictRedis.from_url(
         app.settings.redis_url,
-        encoding="utf-8",
-        minsize=poolsize,
-        maxsize=poolsize + (poolsize // 4),
+        decode_responses=True,
     )
 
 
