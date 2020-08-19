@@ -12,7 +12,7 @@ def dead_job(app, failing_job):
     failing_job.tries = 1
     failing_job.max_retries = 0
     failing_job.status = DEAD
-    app.client.hmset(app.keys.status(failing_job), failing_job.serialise())
+    app.client.hset(app.keys.status(failing_job), mapping=failing_job.serialise())
     app.client.xadd(app.keys.dead, {"uuid": failing_job.uuid})
 
     state = get_state(app)
@@ -78,7 +78,7 @@ def test_replay_filter(app, broker, failing_job):
 
     for _ in range(5):
         job = random_job(tries=4, max_retries=3, status=DEAD, task=anothertask.name)
-        app.client.hmset(app.keys.status(job), job.serialise())
+        app.client.hset(app.keys.status(job), mapping=job.serialise())
         app.client.xadd(app.keys.dead, {"uuid": job.uuid})
 
     state = get_state(app)

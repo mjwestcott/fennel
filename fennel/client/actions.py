@@ -11,7 +11,7 @@ def send(app, job, xid=None):
     """
     job = job.replace(status=SENT)
     with app.client.pipeline() as pipe:
-        pipe.hmset(app.keys.status(job), job.serialise())
+        pipe.hset(app.keys.status(job), mapping=job.serialise())
         pipe.xadd(app.keys.queue, fields={"uuid": job.uuid}, id=xid or "*")
         return pipe.execute()
 
