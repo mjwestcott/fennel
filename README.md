@@ -30,9 +30,11 @@ from fennel import App
 
 app = App(name='myapp', redis_url='redis://127.0.0.1')
 
+
 @app.task
 def foo(n):
     return n
+
 
 # Enqueue a task to be executed in the background by a fennel worker process.
 foo.delay(7)
@@ -54,9 +56,11 @@ from fennel import App
 
 app = App(name='myapp', redis_url='redis://127.0.0.1', interface='async')
 
+
 @app.task
 async def bar(x):
     return x
+
 
 await bar.delay(5)
 ```

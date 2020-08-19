@@ -28,10 +28,12 @@ Sync
 
     app = App(name='myapp', redis_url='redis://127.0.0.1')
 
+
     @app.task
     def foo(n):
         time.sleep(n)
         return n
+
 
     x = foo.delay(4)  # Enqueue a task to be executed in the background.
     x.get()           # Waits for completion and returns 4.
@@ -48,10 +50,12 @@ Async
 
     app = App(name='myapp', redis_url='redis://127.0.0.1', interface='async')
 
+
     @app.task
     async def foo(n):
         await asyncio.sleep(n)
         return n
+
 
     x = await foo.delay(4)  # Enqueue a task to be executed in the background.
     await x.get()           # Waits for completion and returns 4.
@@ -111,6 +115,7 @@ Sync:
         time.sleep(n)
         return n
 
+
     results = [foo.delay(i) for i in range(6)]
 
     # Waits for completion and returns [1, 2, 3, 4, 5, 6].
@@ -127,6 +132,7 @@ Async:
     async def foo(n):
         await asyncio.sleep(n)
         return n
+
 
     results = [await foo.delay(i) for i in range(6)]
 
