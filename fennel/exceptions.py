@@ -1,7 +1,11 @@
 from typing import List
 
 
-class TaskFailed(Exception):
+class FennelException(Exception):
+    pass
+
+
+class TaskFailed(FennelException):
     def __init__(self, original_type: str, original_args: List):
         """
         This exception is returned by worker processes which experienced an exception
@@ -31,40 +35,40 @@ class TaskFailed(Exception):
         self.original_args = original_args
 
 
-class ResultsDisabled(Exception):
+class ResultsDisabled(FennelException):
     """
     Raised when ``results_enabled=False`` and code attempts to access a tasks result via
     ``.get()``.
     """
 
 
-class UnknownTask(Exception):
+class UnknownTask(FennelException):
     """
     Raised by a worker process if it is unable to find a Python function corresponding
     to the task it has read from the queue.
     """
 
 
-class Timeout(Exception):
+class Timeout(FennelException):
     """
     Raised by client code when a given timeout is exceeded when waiting for results to arrive.
     """
 
 
-class JobNotFound(Exception):
+class JobNotFound(FennelException):
     """
     Raised by client code when attempting to retrieve job information that cannot be
     found in Redis.
     """
 
 
-class Chaos(Exception):
+class Chaos(FennelException):
     """
     Used in tests to ensure failures are handled properly.
     """
 
 
-class Completed(Exception):
+class Completed(FennelException):
     """
     Used internally to shutdown an Executor if the exit condition is completing all
     tasks.
