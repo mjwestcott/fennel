@@ -1,6 +1,7 @@
 import pytest
 
 from fennel import status
+from fennel.exceptions import Completed
 from fennel.worker import EXIT_COMPLETE
 
 
@@ -9,7 +10,8 @@ async def test_loop_completion(mocker, executor, consumer_id):
     executor.broker.read.return_value = []
     mocker.spy(executor, "_execute")
 
-    assert await executor._loop(consumer_id, exit=EXIT_COMPLETE) == None
+    with pytest.raises(Completed):
+        await executor._loop(consumer_id, exit=EXIT_COMPLETE)
     assert not executor._execute.called
 
 
@@ -36,6 +38,7 @@ async def test_loop_iteration(mocker, executor, consumer_id, job, failing_job):
     executor.broker.read.side_effect = mock_read
     executor.broker.executing.side_effect = mock_executing
 
-    assert await executor._loop(consumer_id, exit=EXIT_COMPLETE) == None
+    with pytest.raises(Completed):
+        await executor._loop(consumer_id, exit=EXIT_COMPLETE)
     assert executor.broker.ack_and_store.call_count == 4
     assert executor.broker.ack_and_schedule.call_count == 4

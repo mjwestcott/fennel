@@ -4,7 +4,7 @@ version = "0.2.4"
 description = "A task queue for Python based on Redis Streams."
 authors = ["Matt Westcott <m.westcott@gmail.com>"]
 license = "MIT"
-homepage = "https://fennel.readthedocs.io"
+homepage = "https://fennel.dev"
 repository = "https://github.com/mjwestcott/fennel"
 
 [tool.poetry.dependencies]
@@ -16,6 +16,7 @@ click = "^7.0"
 structlog = "^20.0"
 colorama = "^0.4.1"
 pydantic = "^1.5"
+anyio = {version = "^2.0.0-beta.2", allow-prereleases = true}
 
 [tool.poetry.dev-dependencies]
 yapf = "^0.30.0"
