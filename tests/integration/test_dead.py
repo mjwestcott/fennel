@@ -15,6 +15,7 @@ def test_dead_e2e():
         processes=1,
         concurrency=4,
         prefetch_count=1,
+        grace_period=1,
     )
 
     @app.task(retries=0)

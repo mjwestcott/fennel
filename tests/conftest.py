@@ -35,6 +35,7 @@ def app():
         processes=1,
         concurrency=2,
         read_timeout=500,
+        grace_period=1,
     )
 
 

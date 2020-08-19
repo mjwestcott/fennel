@@ -73,6 +73,9 @@ class Settings(BaseSettings):
     task_timeout : int
         How long to wait for results to be computed when calling .get(), seconds.
         Default ``10``
+    grace_period : int
+        How many seconds to wait for in-flight tasks to complete before forcefully
+        exiting. Default: ``30``
     restults_enabled : bool
         Whether to store results. Can be disabled if your only use-case is
         'fire-and-forget'. Default ``True``
@@ -106,6 +109,7 @@ class Settings(BaseSettings):
     schedule_interval: float = 4
     maintenance_interval: float = 8
     task_timeout: int = 10
+    grace_period: int = 30
     results_enabled: bool = True
     results_ttl: int = 60 * 60
     log_format: str = "console"

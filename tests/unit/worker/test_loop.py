@@ -1,3 +1,4 @@
+import anyio
 import pytest
 
 from fennel import status
@@ -7,6 +8,7 @@ from fennel.worker import EXIT_COMPLETE
 
 @pytest.mark.asyncio
 async def test_loop_completion(mocker, executor, consumer_id):
+    executor.done = anyio.create_event()
     executor.broker.read.return_value = []
     mocker.spy(executor, "_execute")
 
@@ -35,6 +37,7 @@ async def test_loop_iteration(mocker, executor, consumer_id, job, failing_job):
             return job.replace(status=status.EXECUTING)
         return failing_job.replace(status=status.EXECUTING)
 
+    executor.done = anyio.create_event()
     executor.broker.read.side_effect = mock_read
     executor.broker.executing.side_effect = mock_executing
 
