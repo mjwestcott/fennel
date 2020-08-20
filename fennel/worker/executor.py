@@ -27,8 +27,8 @@ EXIT_COMPLETE = "complete"
 class Executor:
     def __init__(self, app):
         """
-        The `Executor` is responsible for reading jobs from the Redis queue and execute
-        them.
+        The `Executor` is responsible for reading jobs from the Redis queue and
+        executing them.
 
         Heartbeats are sent from the executor periodically (controlled by
         :attr:`fennel.settings.Settings.heartbeat_interval`). If they are missing for

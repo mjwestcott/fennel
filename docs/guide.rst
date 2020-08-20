@@ -225,7 +225,7 @@ Limitations
 1. Task args and kwargs must be JSON-serialisable.
 2. Return values (if results storage is enabled) must be JSON-serialisable.
 3. Processing order is not guaranteed (if you want to ensure all events for a given key
-   are processed in-order look for stream processors based on Kafka).
+   are processed in-order, see `<https://github.com/mjwestcott/runnel>`_).
 4. Tasks will be processed at least once (we acknowledge the underlying messages when a
    task returns without an exception, so any failures before then will happen again when
    retried).
@@ -258,14 +258,3 @@ This is a notable section of the `Streams Intro <https://redis.io/topics/streams
     So when designing application using Redis streams and consumer groups, make sure to
     understand the semantical properties your application should have during failures,
     and configure things accordingly, evaluating if it is safe enough for your use case.
-
-
-Missing features
-----------------
-
-The following features are planned, but not yet supported:
-
-* A web admin and monitoring dashboard.
-* User-provided hooks/middleware (especially for integrating monitoring systems).
-* Task completion callbacks (e.g. to trigger other tasks on success/fail).
-* Readiness and liveness probes for Kubernetes deployment.

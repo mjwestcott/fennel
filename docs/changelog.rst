@@ -1,6 +1,14 @@
 Changelog
 =========
 
+v0.3.0 (2020-08-20)
+-------------------
+
+* Added configurable grace period before shutting down
+* Exceptions now have a common superclass
+* Switched async Redis driver from aioredis to aredis
+* Adopted AnyIO for better async primitives
+
 v0.2.4 (2020-07-03)
 -------------------
 

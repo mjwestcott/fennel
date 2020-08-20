@@ -43,7 +43,7 @@ class Broker:
         self.keys = keys
         self.results_ttl = results_ttl
         self.retry_backoff = retry_backoff
-        self.scripts: Dict[str, str] = {}  # Mapping name to sha1 digest.
+        self.scripts: Dict[str, Callable] = {}
 
     @classmethod
     async def for_app(cls, app: App) -> "Broker":
