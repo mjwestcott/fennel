@@ -10,32 +10,25 @@ from fennel.worker import EXIT_COMPLETE, start
 from tests.helpers import random_job
 
 
-@pytest.mark.parametrize("task", ["cpu", "sleep"])
-@pytest.mark.parametrize("processes", [1, 4])
-@pytest.mark.parametrize("concurrency", [32, 64])
-def test_worker_loop(benchmark, concurrency, processes, task):
+def test_worker_loop(benchmark):
     app = App(
         name="benchmark",
-        processes=processes,
-        concurrency=concurrency,
+        processes=1,
+        concurrency=32,
         prefetch_count=1,
         results_enabled=True,
     )
 
     @app.task
     def sleep():
-        time.sleep(random.expovariate(2))
+        time.sleep(0)
 
-    @app.task
-    def cpu():
-        list(random.random() for _ in range(500_000)).sort()
-
-    length = 100
+    length = 1000
 
     def setup():
         app.client.flushall()
         with app.client.pipeline(transaction=False) as pipe:
-            _load(pipe, app, cpu.name if task == "cpu" else sleep.name, n=length)
+            _load(pipe, app, sleep.name, n=length)
             pipe.execute()
 
     benchmark.pedantic(
@@ -43,7 +36,7 @@ def test_worker_loop(benchmark, concurrency, processes, task):
         args=(app, ),
         kwargs={"exit": EXIT_COMPLETE},
         setup=setup,
-        rounds=3,
+        rounds=10,
         iterations=1,
     )
     assert count_results(app) == length
