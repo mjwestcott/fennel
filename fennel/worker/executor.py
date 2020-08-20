@@ -44,7 +44,8 @@ class Executor:
         self.app = app
         self.settings = app.settings
         self.executor_id: str = base64uuid()
-        self.broker: Optional[Broker] = None  # Set on .start()
+        self.broker: Optional[Broker] = None
+        self.threadpool = ThreadPoolExecutor(max_workers=app.settings.concurrency)
         self.must_stop: bool = False
         self.running: int = 0
         self.done: anyio.abc.Event = None
@@ -185,9 +186,8 @@ class Executor:
             if asyncio.iscoroutinefunction(f):
                 val = await f(*args, **kwargs)
             else:
-                with ThreadPoolExecutor(max_workers=1) as pool:
-                    loop = asyncio.get_running_loop()
-                    val = await loop.run_in_executor(pool, partial(f, *args, **kwargs))
+                loop = asyncio.get_running_loop()
+                val = await loop.run_in_executor(self.threadpool, partial(f, *args, **kwargs))
         except BaseException as e:
             logger.exception("execution-failed", job=asdict(job))
             return job.replace(
