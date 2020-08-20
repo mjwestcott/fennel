@@ -2,6 +2,8 @@
 name = "fennel"
 version = "0.3.0"
 description = "A task queue for Python based on Redis Streams."
+readme = "README.md"
+keywords = ["task", "queue", "background", "redis", "async"]
 authors = ["Matt Westcott <m.westcott@gmail.com>"]
 license = "MIT"
 homepage = "https://fennel.dev"

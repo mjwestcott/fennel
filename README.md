@@ -64,3 +64,8 @@ async def bar(x):
 
 await bar.delay(5)
 ```
+
+### See also
+
+If you need to ensure that all tasks for a given key are processed in-order,
+please see our sister project [Runnel](https://github.com/mjwestcott/runnel).
