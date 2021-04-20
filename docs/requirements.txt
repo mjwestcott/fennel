@@ -30,7 +30,7 @@ mypy-extensions==0.4.3
 packaging==20.4
 pbr==5.4.5
 pluggy==0.13.1
-py==1.9.0
+py==1.10.0
 py-cpuinfo==7.0.0
 pycodestyle==2.6.0
 pydantic==1.6.1
