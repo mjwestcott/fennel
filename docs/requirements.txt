@@ -33,7 +33,7 @@ pluggy==0.13.1
 py==1.9.0
 py-cpuinfo==7.0.0
 pycodestyle==2.6.0
-pydantic==1.6.1
+pydantic==1.6.2
 pyflakes==2.2.0
 pygments==2.6.1
 pyparsing==2.4.7
